@@ -26,9 +26,10 @@ namespace MonitorBackline
             Console.WriteLine("Please input your iDesk password:");
             string password = Console.ReadLine();
 
-            IDeskRestAPI idesk = new IDeskRestAPI(username, password, null, IDeskRestAPI.ENV_PROD, 10, log => Console.WriteLine(log), log => Console.WriteLine(log));
-            
-            while(true)
+            IDeskRestAPI idesk = new IDeskRestAPI(username, password, null, IDeskRestAPI.ENV_PROD, 10, null, log => Console.WriteLine(DateTime.Now.ToShortTimeString() + " - " + log));
+
+
+            while (true)
             {
                 //Login
                 if (!Task.Run(() => idesk.LoginAsync()).Result)
@@ -38,7 +39,10 @@ namespace MonitorBackline
                     Console.ReadKey();
                     return;
                 }
+                Console.WriteLine("Start to monitor Multichannel-Backline");
+#if DEBUG
                 Console.WriteLine(DateTime.Now.ToShortTimeString() + " - Logged in.");
+#endif
 
                 //Search queue
                 //string q = @"((('Assigned Group' LIKE ""Frontline_%"" OR 'Assigned Group' LIKE ""%BacklineITSD"") AND (('ServiceCI' = ""order management"" OR 'ServiceCI' = ""cwis (central warehousing information service)"" OR 'ServiceCI' = ""astro [warehouse management system]"" OR 'ServiceCI' = ""astro"" OR 'ServiceCI' = ""ymm (yard management)"" OR 'ServiceCI' = ""centiro"" OR 'ServiceCI' = ""centiro application"")OR ('Description' LIKE ""MCS"" AND NOT ('ServiceCI' = ""isell"" OR 'ServiceCI' = ""isell application""))))AND ('Status' < ""Pending"" OR ('Status' = ""Resolved"" AND 'Status_Reason' =""Updated By Mail""))AND ('Country' = ""Australia""OR 'Country' = ""Austria"" OR 'Country' = ""Belgium""OR 'Country' = ""China"" OR 'Country' = ""Denmark""OR 'Country' = ""Finland""OR 'Country' = ""France"" OR 'Country' = ""Germany""OR 'Country' = ""Ireland""OR 'Country' = ""Italy"" OR 'Country' = ""Netherlands"" OR 'Country' = ""Norway""OR 'Country' = ""Poland""OR 'Country' = ""Portugal"" OR 'Country' = ""South Korea""OR 'Country' = ""Spain"" OR 'Country' = ""Sweden"" OR 'Country' = ""Switzerland"" OR 'Country' = ""United Kingdom""))";
@@ -47,7 +51,16 @@ namespace MonitorBackline
 
                 //Logout
                 Task.Run(() => idesk.LogoutAsync()).Wait();
+#if DEBUG
                 Console.WriteLine(DateTime.Now.ToShortTimeString() + " - Logged out.");
+#endif
+
+                if(result == null)
+                {
+                    Console.WriteLine("Press any key to close...");
+                    Console.ReadKey();
+                    return;
+                }
 
                 //Check if there is case to tend
                 if (result.entries.Count > 0)
