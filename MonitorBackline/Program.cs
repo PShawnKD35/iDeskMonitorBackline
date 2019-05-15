@@ -24,7 +24,7 @@ namespace MonitorBackline
             Console.WriteLine("Please input your iDesk username:");
             string username = Console.ReadLine();
             Console.WriteLine("Please input your iDesk password:");
-            string password = Console.ReadLine();
+            string password = InputPassword.ReadLine();
 
             IDeskRestAPI idesk = new IDeskRestAPI(username, password, null, IDeskRestAPI.ENV_PROD, 10, null, log => Console.WriteLine(DateTime.Now.ToShortTimeString() + " - " + log));
 
